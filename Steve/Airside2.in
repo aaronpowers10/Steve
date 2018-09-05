@@ -1,0 +1,246 @@
+! -----------------------------------------------------------------------------
+!                       Global
+! -----------------------------------------------------------------------------
+'Global'                     'Time Manager'
+'Time Step'                  60.0            ![Seconds]
+'Start Year'                 1997
+'Start Month'                1
+'Start Day of Month'         1
+'Start Hour of Day'          1
+'Start Minute of Hour'       0
+'End Year'                   1997
+'End Month'                  12
+'End Day of Month'           31
+'End Hour of Day'            23
+'End Minute of Hour'         0
+;
+
+'Global'                    'TMY3 Weather'
+'File'                      'BatonRouge.csv'
+;
+
+! -----------------------------------------------------------------------------
+!                       Day Schedules
+! -----------------------------------------------------------------------------
+
+'Day Schedule'               'Internal Load WD'
+'Values'                     (0.3,0.3,0.3,0.3,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.3,0.3,0.3,0.3,0.3,0.3,0.3)
+;
+
+'Day Schedule'               'Internal Load WE'
+'Values'                     (0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3)
+;
+
+'Day Schedule'               'Cooling WD'
+'Values'                     (76,76,76,76,72,72,72,72,72,72,72,72,72,72,72,72,72,76,76,76,76,76,76,76)
+;
+
+'Day Schedule'               'Cooling WE'
+'Values'                     (76,76,76,76,76,76,76,76,76,76,76,76,76,76,76,76,76,76,76,76,76,76,76,76)
+;
+
+'Day Schedule'               'Heating WD'
+'Values'                     (64,64,64,64,68,68,68,68,68,68,68,68,68,68,68,68,68,64,64,64,64,64,64,64)
+;
+
+'Day Schedule'               'Heating WE'
+'Values'                     (64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64)
+;
+
+! -----------------------------------------------------------------------------
+!                       Week Schedules
+! -----------------------------------------------------------------------------
+
+'Week Schedule'              'Internal Load Week'
+'Day Schedules'              ('Internal Load WD','Internal Load WD','Internal Load WD','Internal Load WD','Internal Load WD','Internal Load WE','Internal Load WE')
+;
+
+'Week Schedule'              'Cooling Week'
+'Day Schedules'              ('Cooling WD','Cooling WD','Cooling WD','Cooling WD','Cooling WD','Cooling WE','Cooling WE')
+;
+
+'Week Schedule'              'Heating Week'
+'Day Schedules'              ('Heating WD','Heating WD','Heating WD','Heating WD','Heating WD','Heating WE','Heating WE')
+;
+
+! -----------------------------------------------------------------------------
+!                       Schedules
+! -----------------------------------------------------------------------------
+
+'Schedule'                   'Internal Loads Schedule'
+'Week Schedules'             ('Internal Load Week')
+'End Month'                  (12)
+'End Day'                    (31)
+;
+
+'Schedule'                   'Cooling Schedule'
+'Week Schedules'             ('Cooling Week')
+'End Month'                  (12,1)
+'End Day'                    (31,1)
+;
+
+'Schedule'                   'Heating Schedule'
+'Week Schedules'             ('Heating Week')
+'End Month'                  (12)
+'End Day'                    (31)
+;
+
+! -----------------------------------------------------------------------------
+!                       Loads
+! -----------------------------------------------------------------------------
+
+'Drybulb Based Load'         'Zone 1 Weather Based Load'
+'Peak Load'                  240000   ! 20 tons
+'Peak Load Drybulb'          100
+'Balance Temperature'        62
+;
+
+'Scheduled Load'             'Zone 1 Time Based Load'
+'Peak Load'                  240000   ! 20 tons
+'Sensible Heat Ratio'        0.9
+'Schedule'                   'Internal Loads Schedule'
+;
+
+'Composite Load'             'Zone 1 Load'
+'Loads'                      ('Zone 1 Weather Based Load', 'Zone 1 Time Based Load')
+;
+
+'Drybulb Based Load'         'Zone 2 Load'
+'Peak Load'                  240000   ! 20 tons
+'Peak Load Drybulb'          100
+'Balance Temperature'        60
+;
+
+! -----------------------------------------------------------------------------
+!                       Airside Objects
+! -----------------------------------------------------------------------------
+
+'Zone'                            'Zone 1'
+'Load'                            'Zone 1 Load'
+'Area'                            15000 !Square feet
+'Height'                          20 !Feet
+'Weight Multiplier'               2.0
+'Terminal Units'                  ('VAV 1')
+;
+
+'VAV Box'                         'VAV 1'
+'Max Flow'                        20000
+'Min Flow'                        6500
+'Peak Heating DT'                 70
+'Cooling Controller'              'VAV1 Cool Controller'
+'Heating Controller'              'VAV1 Heat Controller'
+'Upstream Element'                'AHU1 Fan Section'
+;
+
+'Zone'                            'Zone 2'
+'Load'                            'Zone 2 Load'
+'Area'                            10000 !Square feet
+'Height'                          20 !Feet
+'Weight Multiplier'               2.0
+'Terminal Units'                  ('VAV 2')
+;
+
+'VAV Box'                         'VAV 2'
+'Max Flow'                        10000
+'Min Flow'                        3000
+'Peak Heating DT'                 70
+'Cooling Controller'              'VAV1 Cool Controller'
+'Heating Controller'              'VAV1 Heat Controller'
+'Upstream Element'                'AHU1 Fan Section'
+;
+
+'Fan Section'                     'AHU1 Fan Section'
+'Nominal Flow'                    30000
+'Total Static Pressure'           4.5
+'Fan Efficiency'                  0.65
+'Motor Efficiency'                0.92
+'Fan Control'                     'Inlet Guide Vanes'
+'Upstream Element'                'AHU1 Cooling Coil Section'
+;  
+
+'Cooling Coil Section'            'AHU1 Cooling Coil Section'
+'Upstream Element'                'AHU1 Outside Air Section'
+'Supply Air Setpoint'             'AHU1 SA Setpoint'
+;
+
+'Fixed OA Section'                'AHU1 Outside Air Section'
+'Percent Outside Air'             0.2
+'Upstream Elements'               ('Zone 1','Zone 2')
+;
+   
+
+! -----------------------------------------------------------------------------
+!                       Controls
+! -----------------------------------------------------------------------------
+
+'Constant Setpoint'               'AHU1 SA Setpoint'
+'Setpoint'                        55
+;                    
+
+'Proportional Controller'         'VAV1 Cool Controller'
+'Action'                          'Direct'
+'Throttle Range'                  2.0
+'Setpoint'                        'Cooling Setpoint'
+'Sensor'                          'Zone 1'
+'Min Output'                      0.0
+'Max Output'                      1.0
+;
+
+'Proportional Controller'         'VAV1 Heat Controller'
+'Action'                          'Reverse'
+'Throttle Range'                  2.0
+'Setpoint'                        'Heating Setpoint'
+'Sensor'                          'Zone 1'
+'Min Output'                      0.0
+'Max Output'                      1.0
+;
+
+'Proportional Controller'         'VAV2 Cool Controller'
+'Action'                          'Direct'
+'Throttle Range'                  2.0
+'Setpoint'                        'Cooling Setpoint'
+'Sensor'                          'Zone 2'
+'Min Output'                      0.0
+'Max Output'                      1.0
+;
+
+'Proportional Controller'         'VAV2 Heat Controller'
+'Action'                          'Reverse'
+'Throttle Range'                  2.0
+'Setpoint'                        'Heating Setpoint'
+'Sensor'                          'Zone 2'
+'Min Output'                      0.0
+'Max Output'                      1.0
+;
+
+'Scheduled Setpoint'              'Cooling Setpoint'
+'Schedule'                        'Cooling Schedule'
+;
+
+'Scheduled Setpoint'              'Heating Setpoint'
+'Schedule'                        'Heating Schedule'
+;
+
+! -----------------------------------------------------------------------------
+!                       Meters
+! -----------------------------------------------------------------------------
+'Electric Meter'                  'Electric Meter 1'
+'Attached Loads'                  ('AHU1 Fan Section')
+;
+
+! -----------------------------------------------------------------------------
+!                       Reports
+! -----------------------------------------------------------------------------
+
+'Output Report'              'Zones Report'
+'File Name'                  'Zones.csv'
+'Report Frequency'           3600.0         ![Seconds]
+'Objects'                    ( 'Time Manager', 'TMY3 Weather','Zone 1 Load','Zone 2 Load','VAV 1','Zone 1','VAV 2','Zone 2')
+;
+
+'Output Report'              'AHU Report'
+'File Name'                  'AHU.csv'
+'Report Frequency'           3600.0         ![Seconds]
+'Objects'                    ( 'Time Manager', 'TMY3 Weather','AHU1 Outside Air Section','AHU1 Cooling Coil Section','AHU1 Fan Section','Electric Meter 1' )
+;
+!
