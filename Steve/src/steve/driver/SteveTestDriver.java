@@ -21,16 +21,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import steve.airside.AirsideFactory;
-import willie.controls.ControlsFactory;
 import willie.core.ObjectFactory;
 import willie.core.Project;
-import willie.loads.LoadsFactory;
-import willie.schedules.ScheduleFactory;
 
 public class SteveTestDriver {
 	
 	public static void main(String[] args) throws IOException{
-		runTest("Airside2.in");
+		
 	}
 	
 	private static void runTest(String fileName) throws IOException{
