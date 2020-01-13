@@ -61,15 +61,21 @@ public class Zone extends AirElement implements ReportWriter {
 	
 	@Override
 	public void addHeader(Report report) {
-		report.addTitle(name,2);
+		report.addTitle(name,5);
 		report.addDataHeader("Temperature", "[Deg-F]");
 		report.addDataHeader("Humidity Ratio", "[Lb-H2O/Lb-DA]");
+		report.addDataHeader("Air Flow","[CFM]");
+		report.addDataHeader("Load","[Btu/Hr]");
+		report.addDataHeader("Heat Extraction","[Btu/Hr]");
 	}
 
 	@Override
 	public void addData(Report report) {
 		report.putReal(outletTemperature());
 		report.putReal(outletHumidityRatio());	
+		report.putReal(volumetricFlow());
+		report.putReal(heatGain());
+		report.putReal(heatAdvection());
 	}
 
 	@Override

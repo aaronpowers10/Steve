@@ -18,26 +18,26 @@
 package steve.driver;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import steve.airside.AirsideFactory;
-import willie.core.ObjectFactory;
+import willie.core.ConsoleSimulationUpdateListener;
 import willie.core.Project;
 
 public class SteveTestDriver {
 	
 	public static void main(String[] args) throws IOException{
-		
+		runTest("Airside3.in");
 	}
 	
 	private static void runTest(String fileName) throws IOException{
 		System.out.println("RUNNING TEST " + fileName);
 		
-		ArrayList<ObjectFactory> factories = new ArrayList<ObjectFactory>();
-		factories.add(new AirsideFactory());
+		//ArrayList<ObjectFactory> factories = new ArrayList<ObjectFactory>();
+		//factories.add(new AirsideFactory());
 		
-		Project project = new Project(fileName,factories);
-		project.simulate();
+		Project project = new Project(new AirsideFactory());
+		project.addSimulationUpdateListener(new ConsoleSimulationUpdateListener());
+		project.simulate(fileName);
 		System.out.println("ITS OVER!");
 }
 	

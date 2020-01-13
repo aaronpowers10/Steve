@@ -17,6 +17,8 @@
  */
 package steve.airside;
 
+import static java.lang.Math.pow;
+
 import booker.building_data.BookerObject;
 import booker.building_data.NamespaceList;
 import willie.controls.Controller;
@@ -34,6 +36,12 @@ public class FanSection extends AirElement implements ReportWriter, ElectricCons
 	private double fanEfficiency;
 	private double motorEfficiency;
 	private Controller controller;
+	private final double c1 = 1.35348296;
+	private final double c2 = 0.0159317;
+	private final double c3 = -0.36941442;
+	private final double c4 = 0.36977392;
+	private final double c5 = 0.84037501;
+	private final double c6 = -0.21014881;
 	
 	public FanSection(String name){
 		this.name = name;
@@ -46,8 +54,9 @@ public class FanSection extends AirElement implements ReportWriter, ElectricCons
 
 	@Override
 	public void read(BookerObject objectData, NamespaceList<WillieObject> objectReferences) {
+		super.read(objectData, objectReferences);
 		nominalFlow = objectData.getReal("Nominal Flow");
-		totalStaticPressure = objectData.getReal("Total Static Pressure");
+		totalStaticPressure = Conversions.inchesWaterToPsi(objectData.getReal("Total Static Pressure"));
 		fanEfficiency = objectData.getReal("Fan Efficiency");
 		motorEfficiency = objectData.getReal("Motor Efficiency");
 		controller = (Controller)objectReferences.get(objectData.getAlpha("Controller"));
@@ -59,20 +68,31 @@ public class FanSection extends AirElement implements ReportWriter, ElectricCons
 	
 	@Override
 	public double electricPower(){
-		return 0;
+		//Temporary
+		return peakFanPower();
 	}
 	
 	@Override
 	public void addHeader(Report report) {
-		report.addTitle(name,2);
+		report.addTitle(name,7);
 		report.addDataHeader("Airflow", "[CFM]");
+		report.addDataHeader("DP", "[Psi]");
+		report.addDataHeader("Inlet P", "[Psi]");
+		report.addDataHeader("Outlet P", "[Psi]");
 		report.addDataHeader("Fan Power", "[kW]");
+		report.addDataHeader("Heat Gain","[Btu/Hr]");
+		report.addDataHeader("Controller Output","");
 	}
 
 	@Override
 	public void addData(Report report) {
 		report.putReal(volumetricFlow());
-		report.putReal(electricPower());		
+		report.putReal(pressureGain());
+		report.putReal(inletPressure());
+		report.putReal(outletPressure());
+		report.putReal(electricPower());
+		report.putReal(heatGain());
+		report.putReal(controller.output());
 	}
 
 	@Override
@@ -91,16 +111,17 @@ public class FanSection extends AirElement implements ReportWriter, ElectricCons
 	}
 	
 	private double fanFlowFPressure(double pressureRatio){
-		return 0;
+		return (-c2 - pow((c2 * c2 - 4 * c3 * (c1 - pressureRatio)), 0.5)) / (2 * c3);
+		
 	}
 	
 	private double shutoffPressure(){
-		return 0;
+		return c1 * totalStaticPressure*controller.output()*controller.output();
 	}
 
 	@Override
 	public double volume() {
-		return 5*5*5;
+		return 20*20*10;
 	}
 
 	@Override

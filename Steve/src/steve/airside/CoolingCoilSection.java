@@ -38,6 +38,8 @@ public class CoolingCoilSection extends AirElement implements ReportWriter {
 	private double nominalPressureDrop;
 	private double pressureExponent;
 	private double nominalFlow;
+	
+	private double nominalDT; //Hack
 
 	public CoolingCoilSection(String name) {
 		this.name = name;
@@ -57,19 +59,30 @@ public class CoolingCoilSection extends AirElement implements ReportWriter {
 		nominalPressureDrop = Conversions.inchesWaterToPsi(objectData.getReal("Nominal Pressure Drop"));
 		pressureExponent = objectData.getReal("Pressure Exponent");
 		nominalFlow = objectData.getReal("Nominal Flow");
+		nominalDT = objectData.getReal("Nominal DT");
 	}
 
 	@Override
 	public void addHeader(Report report) {
-		report.addTitle(name,2);
+		report.addTitle(name,7);
 		report.addDataHeader("Sensible Cooling Output", "[Btu/Hr]");
 		report.addDataHeader("Latent Cooling Output", "[Btu/Hr]");
+		report.addDataHeader("Flow", "[CFM]");
+		report.addDataHeader("DP", "[Psi]");
+		report.addDataHeader("Controller Output","");
+		report.addDataHeader("Inlet Temperature","[Deg-F]");
+		report.addDataHeader("Outlet Temperature","[Deg-F]");
 	}
 
 	@Override
 	public void addData(Report report) {
 		report.putReal(sensibleCoolingOutput());
 		report.putReal(latentCoolingOutput());		
+		report.putReal(volumetricFlow());
+		report.putReal(pressureDrop());
+		report.putReal(valveController.output());
+		report.putReal(inletTemperature());
+		report.putReal(outletTemperature());
 	}
 	
 	public double sensibleCoolingOutput(){
@@ -113,17 +126,19 @@ public class CoolingCoilSection extends AirElement implements ReportWriter {
 
 	@Override
 	public double heatGain() {
-		return valveController.output()*nominalEffectiveness*(coilSurfaceEnthalpy() - inletEnthalpy());
+		return -valveController.output()*1.085*nominalFlow*nominalDT; //hack
+		//return valveController.output()*nominalEffectiveness*(coilSurfaceEnthalpy() - inletEnthalpy());
 	}
 	
 	@Override
 	public double humidityGain() {
-		if(outletDryCoilDrybulb() < inletDewpoint()){
-			// Wet coil
-			return 60*inletDensity() *( outletHumidityRatioEstimate() - inletHumidityRatio());
-		} else {
-			// Dry coil
-			return 0.0;
-		}
+		return 0;
+//		if(outletDryCoilDrybulb() < inletDewpoint()){
+//			// Wet coil
+//			return 60*inletDensity() *( outletHumidityRatioEstimate() - inletHumidityRatio());
+//		} else {
+//			// Dry coil
+//			return 0.0;
+//		}
 	}
 }

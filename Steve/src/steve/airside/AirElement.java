@@ -96,11 +96,13 @@ public abstract class AirElement implements WillieObject{
 	}
 	
 	public double density(){
-		return Psychrometrics.densityFHumidityRatio(outletTemperature(), outletHumidityRatio(), outletPressure());
+		return 1.0/13.5;
+		//return Psychrometrics.densityFHumidityRatio(outletTemperature(), outletHumidityRatio(), outletPressure());
 	}
 	
 	public double specificHeat(){
-		return (outletEnthalpy() - inletEnthalpy())/(outletTemperature()-inletTemperature());
+		return 0.24;
+		//return (outletEnthalpy() - inletEnthalpy())/(outletTemperature()-inletTemperature());
 	}
 	
 	public double heatCapacityRate(){

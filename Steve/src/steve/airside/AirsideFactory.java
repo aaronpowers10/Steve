@@ -24,15 +24,27 @@ public class AirsideFactory implements ObjectFactory{
 
 	@Override
 	public WillieObject create(String type, String name) {
-		if (type.equals("Ambient Air Node")) {
+		if (type.equals("Air Pressure Sensor")) {
+			return new AirPressureSensor(name);
+		}else if (type.equals("Air Temperature Sensor")) {
+			return new AirTemperatureSensor(name);
+		}else if (type.equals("Ambient Air Node")) {
 			return new AmbientAirNode(name);
-		}else if (type.equals("Cooling Coil Section")) {
+		}else if (type.equals("Cooling Coil")) {
 			return new CoolingCoilSection(name);
-		} else if (type.equals("Fan Section")) {
+		}else if (type.equals("Duct")) {
+			return new Duct(name);
+		} else if (type.equals("Fan")) {
 			return new FanSection(name);
 		}else if (type.equals("Fixed OA Section")) {
 			return new FixedOutsideAirSection(name);
-		} else if (type.equals("VAV Box")) {
+		}else if (type.equals("Outside Air Node")) {
+			return new OutdoorAirNode(name);
+		}else if (type.equals("Simple Flow Path")) {
+			return new SimpleFlowPath(name);
+		} else if (type.equals("Variable Node")) {
+			return new VariableAirNode(name);
+		}else if (type.equals("VAV Box")) {
 			return new VAVBox(name);
 		}else if (type.equals("Wetbulb Sensor")) {
 			return new WetbulbSensor(name);

@@ -49,12 +49,15 @@ public class VAVBox extends AirElement implements ReportWriter {
 
 	@Override
 	public void read(BookerObject objectData, NamespaceList<WillieObject> objectReferences) {
+		super.read(objectData, objectReferences);
 		peakHeatingDT = objectData.getReal("Peak Heating DT");
 		coolingController = (Controller) objectReferences.get(objectData.getAlpha("Cooling Controller"));
 		heatingController = (Controller) objectReferences.get(objectData.getAlpha("Heating Controller"));
 		nominalPressureDrop = Conversions.inchesWaterToPsi(objectData.getReal("Nominal Pressure Drop"));
 		pressureExponent = objectData.getReal("Pressure Exponent");
 		nominalFlow = objectData.getReal("Nominal Flow");
+		setConstant();
+		
 	}
 
 //	@Override
@@ -67,23 +70,29 @@ public class VAVBox extends AirElement implements ReportWriter {
 	}
 
 	private double peakHeatingOutput() {
-		return 0;
-		//return 1.08 * minFlow * peakHeatingDT;
+		//return 0;
+		return 1.08 *0.33 *nominalFlow* peakHeatingDT; //hack
 	}
 	
 	@Override
 	public void addHeader(Report report) {
-		report.addTitle(name,3);
+		report.addTitle(name,6);
 		report.addDataHeader("Airflow", "[CFM]");
+		report.addDataHeader("Pressure Drop","[PSI]");
 		report.addDataHeader("Supply Temperature", "[Deg-F]");
 		report.addDataHeader("Heating Output", "[Btu/Hr]");
+		report.addDataHeader("Cooling Controller Output", "");
+		report.addDataHeader("Heating Controller Output", "");
 	}
 
 	@Override
 	public void addData(Report report) {
 		report.putReal(volumetricFlow());
+		report.putReal(pressureDrop());
 		report.putReal(outletTemperature());	
 		report.putReal(heatGain());
+		report.putReal(coolingController.output());
+		report.putReal(heatingController.output());
 	}
 
 	@Override

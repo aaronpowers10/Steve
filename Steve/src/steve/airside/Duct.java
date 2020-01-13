@@ -21,9 +21,12 @@ import static java.lang.Math.pow;
 
 import booker.building_data.BookerObject;
 import booker.building_data.NamespaceList;
+import willie.core.Conversions;
+import willie.core.ReportWriter;
 import willie.core.WillieObject;
+import willie.output.Report;
 
-public class Duct extends AirElement{
+public class Duct extends AirElement implements ReportWriter{
 	
 	private String name;
 	private double nominalPressureDrop;
@@ -40,7 +43,7 @@ public class Duct extends AirElement{
 	public void read(BookerObject objectData, NamespaceList<WillieObject> objectReferences) {
 		super.read(objectData, objectReferences);
 		nominalFlow = objectData.getReal("Nominal Flow");
-		nominalPressureDrop = objectData.getReal("Nominal Pressure Drop");
+		nominalPressureDrop = Conversions.inchesWaterToPsi(objectData.getReal("Nominal Pressure Drop"));
 		pressureExponent = objectData.getReal("Pressure Exponent");
 		ua = objectData.getReal("UA");
 		environmentTemperature = objectData.getReal("Environment Temperature");		
@@ -77,5 +80,18 @@ public class Duct extends AirElement{
 
 	public double averageFluidTemperature() {
 		return (inletTemperature() + outletTemperature()) * 0.5;
+	}
+	
+	@Override
+	public void addHeader(Report report) {
+		report.addTitle(name,2);
+		report.addDataHeader("Flow", "CFM");
+		report.addDataHeader("Pressure Drop", "PSI");
+	}
+
+	@Override
+	public void addData(Report report) {
+		report.putReal(volumetricFlow());
+		report.putReal(pressureDrop());	
 	}
 }
